@@ -3,16 +3,9 @@ import type { CSSProperties } from "react";
 
 
 export const PAGE_ASPECT_RATIO = 1.4142;
-
-
 export const PAGE_LINE_COUNT = 15;
-
-
-export const PAGE_LINE_HEIGHT = 1.62;
-
+export const PAGE_LINE_HEIGHT = 1.9;
 export const PAGE_FONT_FACTOR = 4.8;
-
-
 
 export const PAGE_INSET_X = "8.4%";
 export const PAGE_INSET_TOP = "7.7%";
