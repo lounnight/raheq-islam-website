@@ -30,11 +30,15 @@ export function resolveAyahFromTarget(
 
 export type AyahSelectHandler = (ayah: AyahRef) => void
 
+export type AyahClickHandler = (ayah: AyahRef | null) => void
+
 export interface MushafPageInteractionProps {
 
   pageNumber: number
 
   selectedKey: string | null
+
+  onSelect: AyahClickHandler
 
   bookmarkedKeys: ReadonlySet<string>
 
@@ -43,7 +47,6 @@ export interface MushafPageInteractionProps {
   onTafsir: AyahSelectHandler
 
   onToggleBookmark: AyahSelectHandler
-
   onNote: AyahSelectHandler
 
   onSimilar: AyahSelectHandler
@@ -60,6 +63,7 @@ export interface MushafPageInteractionProps {
 export function MushafPageInteraction({
   pageNumber,
   selectedKey,
+  onSelect,
   bookmarkedKeys,
   notedKeys,
   onTafsir,
@@ -80,9 +84,6 @@ export function MushafPageInteraction({
 
   const [menuAyah, setMenuAyah] = useState<AyahRef | null>(null)
   const anchorRef = useRef<AnchorRect | null>(null)
-  const menuAyahRef = useRef<AyahRef | null>(null)
-  menuAyahRef.current = menuAyah
-
 
   const openMenu = (ayah: AyahRef, wordEl: Element | null) => {
     anchorRef.current = wordEl?.getBoundingClientRect() ?? null
@@ -122,8 +123,10 @@ export function MushafPageInteraction({
     const wordEl = target.closest?.('.mushaf-word') ?? null
     const ayah = resolveAyahFromTarget(target as unknown as AyahWordTarget)
     if (ayah) {
+      onSelect(ayah)
       openMenu(ayah, wordEl)
-    } else if (menuAyahRef.current) {
+    } else {
+      onSelect(null)
       dismissMenu()
     }
   }

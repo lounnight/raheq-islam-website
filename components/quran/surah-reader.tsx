@@ -148,11 +148,26 @@ export function SurahReader({ surahs, sura, pages, focusAyah }: SurahReaderProps
     : null
 
 
+  const handleSelect = (ayah: AyahRef | null) => {
+    setSelectedAyah(ayah)
+  }
+
+  useEffect(() => {
+    const onDocumentClick = (e: MouseEvent) => {
+      const target = e.target as Element
+      if (!target || typeof target.closest !== 'function') return
+      if (target.closest('.mushaf-page-interaction, .ayah-action-menu')) return
+      setSelectedAyah(null)
+    }
+    document.addEventListener('click', onDocumentClick)
+    return () => document.removeEventListener('click', onDocumentClick)
+  }, [])
+
+
   const handleTafsir = (ayah: AyahRef) => {
     setSelectedAyah(ayah)
     setPanelOpen(true)
   }
-
 
   const handleToggleBookmark = (ayah: AyahRef) => {
     const key = ayahKey(ayah.surah, ayah.verse)
@@ -328,6 +343,7 @@ export function SurahReader({ surahs, sura, pages, focusAyah }: SurahReaderProps
             <MushafPageInteraction
               pageNumber={entry.pageNumber}
               selectedKey={selectedKey}
+              onSelect={handleSelect}
               bookmarkedKeys={bookmarkedKeys}
               notedKeys={notedKeys}
               onTafsir={handleTafsir}
