@@ -3,9 +3,9 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
-import { useEffect, useState } from 'react'
 import { navItems } from '@/types'
 import { Button } from '@/components/ui/button'
+import { useTheme } from '@/components/theme-provider'
 import { BookOpen, Clock3, Heart, Home, ListChecks, Moon, ScrollText, Search, Sun } from 'lucide-react'
 
 
@@ -20,19 +20,8 @@ const icons = {
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const [dark, setDark] = useState(false)
-  useEffect(() => {
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-    document.documentElement.classList.toggle('dark', prefersDark)
-    document.documentElement.classList.toggle('light', !prefersDark)
-    setDark(prefersDark)
-  }, [])
-  function toggleTheme() {
-    const nextDark = !dark
-    document.documentElement.classList.toggle('dark', nextDark)
-    document.documentElement.classList.toggle('light', !nextDark)
-    setDark(nextDark)
-  }
+  const { theme, toggleTheme } = useTheme()
+  const dark = theme === 'dark'
   return (
     <div dir="rtl" className="min-h-screen bg-background">
       <header className="sticky top-0 z-10 border-b bg-background/95 px-4 backdrop-blur md:px-8">
