@@ -12,7 +12,10 @@ const amiriFont = Amiri_Quran({
   variable: '--font-amiri',
 })
 
+const siteUrl = 'https://raheq-islam-website.vercel.app'
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: 'رحيق الإسلام | نورٌ في كل يوم',
   description: 'منصة إسلامية لقراءة القرآن والأحاديث والأذكار ومعرفة أوقات الصلاة.',
   generator: 'رحيق الإسلام',
@@ -22,6 +25,30 @@ export const metadata: Metadata = {
         url: '/logo2.png',
       },
     ],
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'ar',
+    siteName: 'رحيق الإسلام',
+    title: 'رحيق الإسلام | نورٌ في كل يوم',
+    description:
+      'منصة إسلامية شاملة: المصحف المديني بالتلاوة والتفسير، مواقيت الصلاة، الأحاديث النبوية، الأذكار، وأسئلة وأجوبة إسلامية.',
+    url: siteUrl,
+    images: [
+      {
+        url: '/raheq-banner.png',
+        width: 1920,
+        height: 1080,
+        alt: 'رحيق الإسلام — نورٌ في كل يوم',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'رحيق الإسلام | نورٌ في كل يوم',
+    description:
+      'منصة إسلامية شاملة: المصحف المديني بالتلاوة والتفسير، مواقيت الصلاة، الأحاديث النبوية، الأذكار، وأسئلة وأجوبة إسلامية.',
+    images: ['/raheq-banner.png'],
   },
 }
 
