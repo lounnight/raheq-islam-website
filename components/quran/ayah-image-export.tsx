@@ -348,7 +348,15 @@ export function AyahImageExport({
         onClick={(e) => e.stopPropagation()}
       >
         <header className="flex items-center justify-between gap-[0.5rem]">
-          <h2 className="m-0 text-[0.85rem] font-bold">حفظ الآية كصورة · سورة {surahName}</h2>
+          <h2 className="m-0 flex items-center gap-[0.45rem] text-[0.85rem] font-bold">
+            <span>حفظ الآية كصورة · سورة {surahName}</span>
+            <span
+              className="rounded-full border border-primary/40 bg-primary/10 px-[0.5rem] py-[0.08rem] text-[0.62rem] font-semibold text-primary"
+              title="هذه الميزة قيد التجربة"
+            >
+              تجريبي
+            </span>
+          </h2>
           <button
             type="button"
             className="grid size-8 cursor-pointer place-items-center rounded-[0.45rem] border border-transparent bg-transparent text-muted-foreground transition-colors duration-150 hover:border-border hover:bg-accent hover:text-accent-foreground"
