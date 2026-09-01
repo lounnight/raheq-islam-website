@@ -1,11 +1,12 @@
 'use client'
 
 import Link from 'next/link'
+import { useEffect } from 'react'
 import { usePathname } from 'next/navigation'
-
 import { navItems } from '@/types'
 import { Button } from '@/components/ui/button'
 import { useTheme } from '@/components/theme-provider'
+import { quranAudio } from '@/hooks/use-quran-audio'
 import { BookOpen, Clock3, Heart, Home, ListChecks, Moon, ScrollText, Search, Sun } from 'lucide-react'
 
 
@@ -22,6 +23,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const { theme, toggleTheme } = useTheme()
   const dark = theme === 'dark'
+
+  useEffect(() => {
+    if (!pathname.startsWith('/quran') && quranAudio.getState().currentAyah) {
+      quranAudio.stop()
+    }
+  }, [pathname])
+
   return (
     <div dir="rtl" className="min-h-screen bg-background">
       <header className="sticky top-0 z-10 border-b bg-background/95 px-4 backdrop-blur md:px-8">
