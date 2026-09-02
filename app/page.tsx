@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, BookOpen, CalendarDays, Clock3, Heart, MapPin, ScrollText } from 'lucide-react'
+import { ArrowLeft, BookOpen, CalendarDays, Clock3, Heart, HelpCircle, MapPin, ScrollText } from 'lucide-react'
 
 import { AppShell } from '@/components/app-shell'
 import { Button } from '@/components/ui/button'
@@ -18,14 +18,16 @@ import { getSurahStartPage } from '@/lib/quran-page-map'
 import { toArabicIndic } from '@/components/quran/mushaf-utils'
 import { formatHijriDate, formatGregorianDate } from '@/lib/hijri-date'
 
-function SectionTitle({ title, href = '#', action = 'عرض الكل' }: { title: string; href?: string; action?: string }) {
+function SectionTitle({ title, href, action }: { title: string; href?: string; action?: string }) {
   return (
     <div className="mb-4 flex items-center justify-between">
       <h2 className="text-lg font-semibold">{title}</h2>
-      <Link href={href} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-        {action}
-        <ArrowLeft className="size-4" />
-      </Link>
+      {href && action && (
+        <Link href={href} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+          {action}
+          <ArrowLeft className="size-4" />
+        </Link>
+      )}
     </div>
   )
 }
@@ -183,16 +185,17 @@ export default function Page() {
         </section>
 
         <section>
-          <SectionTitle title="وصول سريع" />
+          <SectionTitle title="وصول سريع" href="" action="" />
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
             {[
-              { href: '/quran', label: 'القرآن الكريم', sub: 'اقرأ وتدبر', icon: <BookOpen className="mb-8 size-6 text-muted-foreground group-hover:text-foreground" /> },
-              { href: '/hadith', label: 'الأحاديث', sub: 'من السنة النبوية', icon: <ScrollText className="mb-8 size-6 text-muted-foreground group-hover:text-foreground" /> },
-              { href: '/adhkar', label: 'الأذكار', sub: 'حصّن يومك', icon: <Heart className="mb-8 size-6 text-muted-foreground group-hover:text-foreground" /> },
-              { href: '/prayer', label: 'أوقات الصلاة', sub: 'مواقيت مدينتك', icon: <Clock3 className="mb-8 size-6 text-muted-foreground group-hover:text-foreground" /> }
-            ].map(({ href, label, sub, icon }) => (
+              { key: 'quran', href: '/quran', label: 'القرآن الكريم', sub: 'اقرأ وتدبر', icon: <BookOpen className="mb-8 size-6 text-muted-foreground group-hover:text-foreground" /> },
+              { key: 'hadith', href: '/hadith', label: 'الأحاديث', sub: 'من السنة النبوية', icon: <ScrollText className="mb-8 size-6 text-muted-foreground group-hover:text-foreground" /> },
+              { key: 'adhkar', href: '/adhkar', label: 'الأذكار', sub: 'حصّن يومك', icon: <Heart className="mb-8 size-6 text-muted-foreground group-hover:text-foreground" /> },
+              { key: 'prayer-faq', href: '/questions', label: 'الأسئلة', sub: 'الاسئلة', icon: <HelpCircle className="mb-8 size-6 text-muted-foreground group-hover:text-foreground" /> },
+              { key: 'prayer', href: '/prayer', label: 'أوقات الصلاة', sub: 'مواقيت مدينتك', icon: <Clock3 className="mb-8 size-6 text-muted-foreground group-hover:text-foreground" /> }
+            ].map(({ key, href, label, sub, icon }) => (
               <Link
-                key={href}
+                key={key}
                 href={href}
                 className="group rounded-xl border bg-card p-4 transition-colors hover:bg-muted"
               >
