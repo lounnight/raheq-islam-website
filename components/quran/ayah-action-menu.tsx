@@ -82,7 +82,7 @@ export function AyahActionMenu({
   return (
     <div
       ref={menuRef}
-      className="fixed z-[60] flex select-none items-center gap-[2px] rounded-[0.6rem] border border-border p-[3px] text-popover-foreground shadow-[0_8px_24px_-8px_rgb(0_0_0/0.3)] backdrop-blur-[4px] [direction:rtl] [background:color-mix(in_oklab,var(--popover)_96%,transparent)] [animation:ayah-menu-in_0.12s_ease-out]"
+      className="ayah-action-menu fixed z-[60] flex select-none items-center gap-[2px] rounded-[0.6rem] border border-border p-[3px] text-popover-foreground shadow-[0_8px_24px_-8px_rgb(0_0_0/0.3)] backdrop-blur-[4px] [direction:rtl] [background:color-mix(in_oklab,var(--popover)_96%,transparent)] [animation:ayah-menu-in_0.12s_ease-out]"
       role="toolbar"
       aria-label={`إجراءات الآية ${verseLabel}`}
       data-ayah-key={`${ayah.surah}:${ayah.verse}`}
