@@ -14,6 +14,31 @@ import {
   PAGE_LINE_COUNT,
 } from "./mushaf-layout";
 
+export function getPageSurahHeadings(
+  pageData: QuranPageData,
+  surahName?: string
+): SurahHeading[] {
+  const map = new Map<number, SurahHeading>()
+
+  for (const heading of pageData.surahHeaderInfo ?? []) {
+    map.set(heading.surahNumber, {
+      surahNumber: heading.surahNumber,
+      name: heading.name || surahName || `سورة ${heading.surahNumber}`,
+    })
+  }
+
+  for (const verse of pageData.verses ?? []) {
+    if (verse.verse_number !== 1) continue
+    if (map.has(verse.surah_number)) continue
+    map.set(verse.surah_number, {
+      surahNumber: verse.surah_number,
+      name: surahName || `سورة ${verse.surah_number}`,
+    })
+  }
+
+  return [...map.values()].sort((a, b) => a.surahNumber - b.surahNumber)
+}
+
 type QuranPageRendererProps = {
   pageData: QuranPageData;
   layout?: MushafPageLayout | null;
@@ -36,22 +61,31 @@ export function QuranPageRenderer({
     ? layout.lines.filter((l) => l.type === "surah-header")
     : [];
   const firstVerse = pageData.verses[0];
+  const headings = getPageSurahHeadings(pageData, surahName);
+
   const primarySurahName =
     surahName ||
+    headings[0]?.name ||
     (layoutHeaderLines[0]?.type === "surah-header"
       ? `سورة ${extractSurahName(layoutHeaderLines[0].text)}`
       : "") ||
-    pageData.surahHeaderInfo[0]?.name ||
     (firstVerse ? `سورة ${toArabicIndic(firstVerse.surah_number)}` : "");
 
   const textReady = status === "ready";
   const layoutFailed = !layout;
 
-  const headings: SurahHeading[] = pageData.surahHeaderInfo
-    .filter((h) => !(page === 1 && h.surahNumber === 1))
-    .map((h) => ({ surahNumber: h.surahNumber, name: h.name }));
+  const layoutHeaderSurahNumbers = new Set(
+    layoutHeaderLines
+      .filter((line): line is Extract<typeof line, { type: "surah-header" }> => line.type === "surah-header")
+      .map((line) => line.surah)
+  );
 
-  const showStandaloneHeadings = !layout && headings.length > 0;
+  const syntheticHeadings = headings.filter(
+    (heading) => !layoutHeaderSurahNumbers.has(heading.surahNumber)
+  );
+
+  const visibleHeadings = !layout ? headings : syntheticHeadings;
+  const showStandaloneHeadings = (!layout && headings.length > 0) || syntheticHeadings.length > 0;
 
   const qcfFamily = `'${pageFontFaceName(page)}'`;
 
@@ -76,7 +110,7 @@ export function QuranPageRenderer({
             />
           )}
 
-          {showStandaloneHeadings && <MushafSurahHeading headings={headings} />}
+          {showStandaloneHeadings && <MushafSurahHeading headings={visibleHeadings} />}
 
           {status === "error" ? (
             <div className="px-[1em] py-[2em] text-center text-destructive" role="alert">

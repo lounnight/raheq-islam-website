@@ -134,19 +134,46 @@ export async function getQuranPageData(pageNumber: number): Promise<QuranPageDat
     verses.push({ surah_number: v.surah, verse_number: v.verse, qcfData: '', content: '' })
   }
 
-  const surahHeaderInfo = layout.lines
-    .filter((l) => l.type === 'surah-header')
-    .map((l) => {
-      const s = surahs.find((meta) => meta.number === l.surah)
-      return {
-        surahNumber: l.surah,
-        name: s?.name || `سورة ${l.surah}`,
-        englishName: s?.englishName || '',
-        revelationType: s?.revelationType || '',
-        numberOfAyahs: s?.numberOfAyahs || 0,
-        isStartOfSurah: true
-      }
+  const surahMetaMap = new Map(surahs.map((meta) => [meta.number, meta]))
+  const surahHeaderInfoMap = new Map<number, {
+    surahNumber: number
+    name: string
+    englishName: string
+    revelationType: string
+    numberOfAyahs: number
+    isStartOfSurah: boolean
+  }>()
+
+  for (const line of layout.lines) {
+    if (line.type !== 'surah-header') continue
+    const s = surahMetaMap.get(line.surah)
+    surahHeaderInfoMap.set(line.surah, {
+      surahNumber: line.surah,
+      name: s?.name || `سورة ${line.surah}`,
+      englishName: s?.englishName || '',
+      revelationType: s?.revelationType || '',
+      numberOfAyahs: s?.numberOfAyahs || 0,
+      isStartOfSurah: true,
     })
+  }
+
+  for (const verse of verses) {
+    if (verse.verse_number !== 1) continue
+    const s = surahMetaMap.get(verse.surah_number)
+    if (!s || surahHeaderInfoMap.has(s.number)) continue
+    surahHeaderInfoMap.set(s.number, {
+      surahNumber: s.number,
+      name: s.name,
+      englishName: s.englishName,
+      revelationType: s.revelationType,
+      numberOfAyahs: s.numberOfAyahs,
+      isStartOfSurah: true,
+    })
+  }
+
+  const surahHeaderInfo = [...surahHeaderInfoMap.values()].sort(
+    (a, b) => a.surahNumber - b.surahNumber
+  )
 
   let juzNumber = 1
   if (verses.length > 0) {
