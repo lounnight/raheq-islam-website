@@ -14,6 +14,8 @@ export interface RawSourceEntry {
   verse_number?: number
   text?: string
   content?: string
+  tafsir?: string
+  translation?: string
 }
 
 export function stripHtml(html: string): string {
@@ -25,24 +27,49 @@ export function stripHtml(html: string): string {
     .trim()
 }
 
-export function buildSourceMap(raw: unknown[]): SourceMap {
+type PreferredTextField = 'text' | 'translation' | 'tafsir' | 'content'
+
+export function buildSourceMap(
+  raw: unknown[],
+  preferredField: PreferredTextField = 'text'
+): SourceMap {
   const map: SourceMap = new Map()
   for (const entry of raw) {
-    const norm = normalizeEntry(entry)
+    const norm = normalizeEntry(entry, preferredField)
     if (!norm) continue
     map.set(ayahKey(norm.surah, norm.aya), stripHtml(norm.text))
   }
   return map
 }
 
+function chooseTextValue(
+  record: RawSourceEntry,
+  preferredField: PreferredTextField
+): string | null {
+  const preferredOrder: PreferredTextField[] =
+    preferredField === 'tafsir'
+      ? ['tafsir', 'text', 'content', 'translation']
+      : preferredField === 'translation'
+        ? ['translation', 'text', 'content', 'tafsir']
+        : ['text', 'content', 'tafsir', 'translation']
+
+  for (const field of preferredOrder) {
+    const value = record[field]
+    if (typeof value === 'string' && value.trim().length > 0) return value
+  }
+
+  return null
+}
+
 function normalizeEntry(
-  value: unknown
+  value: unknown,
+  preferredField: PreferredTextField = 'text'
 ): { surah: number; aya: number; text: string } | null {
   if (typeof value !== 'object' || value === null) return null
   const r = value as RawSourceEntry
   const surah = r.sura ?? r.sura_number
   const aya = r.aya ?? r.verse_number
-  const text = typeof r.text === 'string' ? r.text : r.content
+  const text = chooseTextValue(r, preferredField)
   if (
     typeof surah !== 'number' ||
     typeof aya !== 'number' ||
@@ -83,7 +110,8 @@ export function getSourceMap(sourceId: string): Promise<SourceMap> {
       if (!Array.isArray(json)) {
         throw new Error(`Source "${sourceId}" payload is not an array`)
       }
-      const map = buildSourceMap(json as RawSourceEntry[])
+      const preferredField: PreferredTextField = source.type === 'tafsir' ? 'tafsir' : 'translation'
+      const map = buildSourceMap(json as RawSourceEntry[], preferredField)
       sourceCache.set(sourceId, map)
       return map
     })

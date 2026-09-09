@@ -154,14 +154,15 @@ export function SurahReader({ surahs, sura, pages, focusAyah }: SurahReaderProps
 
   useEffect(() => {
     const onDocumentClick = (e: MouseEvent) => {
+      if (panelOpen) return
       const target = e.target as Element
       if (!target || typeof target.closest !== 'function') return
-      if (target.closest('.mushaf-page-interaction, .ayah-action-menu')) return
+      if (target.closest('.mushaf-page-interaction, .ayah-action-menu, .quran-study-panel')) return
       setSelectedAyah(null)
     }
     document.addEventListener('click', onDocumentClick)
     return () => document.removeEventListener('click', onDocumentClick)
-  }, [])
+  }, [panelOpen])
 
 
   const handleTafsir = (ayah: AyahRef) => {
@@ -388,6 +389,7 @@ export function SurahReader({ surahs, sura, pages, focusAyah }: SurahReaderProps
 
       
       <QuranStudyPanel
+        key={selectedAyah ? `${selectedAyah.surah}:${selectedAyah.verse}` : 'no-ayah'}
         open={panelOpen}
         selectedAyah={selectedAyah}
         surahName={sura.name}

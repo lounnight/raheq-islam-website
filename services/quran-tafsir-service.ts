@@ -1,67 +1,125 @@
 import type { TafsirEntry } from '@/types/quran'
 
-const TAFSIR_RAW_URL =
-  'https://cdn.jsdelivr.net/gh/lounnight/raheq-data@main/database/quran/tafsser/ar_muyassar.json'
+import {
+  DEFAULT_SOURCE_ID,
+  TAFSIR_SOURCES,
+  getSource,
+} from '@/lib/quran/sources'
+
+import { stripHtml } from './quran-source-service'
 
 export type RawTafsirEntry = {
-  id: number
-  sura: number
-  aya: number
-  text: string
+  id?: number
+  sura?: number
+  sura_number?: number
+  aya?: number
+  verse_number?: number
+  text?: string
+  tafsir?: string
+  content?: string
 }
 
 export function tafsirKey(surah: number, aya: number): string {
   return `${surah}:${aya}`
 }
 
+function normalizeTafsirText(value: unknown): string | null {
+  if (typeof value !== 'string') return null
+  const normalized = stripHtml(value).trim()
+  return normalized.length > 0 ? normalized : null
+}
+
 function isRawTafsirEntry(value: unknown): value is RawTafsirEntry {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    typeof (value as RawTafsirEntry).sura === 'number' &&
-    typeof (value as RawTafsirEntry).aya === 'number' &&
-    typeof (value as RawTafsirEntry).text === 'string'
-  )
+  if (typeof value !== 'object' || value === null) return false
+
+  const record = value as Record<string, unknown>
+  const sura = record.sura ?? record.sura_number
+  const aya = record.aya ?? record.verse_number
+  const text =
+    normalizeTafsirText(record.text) ??
+    normalizeTafsirText(record.tafsir) ??
+    normalizeTafsirText(record.content)
+
+  return typeof sura === 'number' && typeof aya === 'number' && typeof text === 'string'
 }
 
 export function buildTafsirMap(raw: unknown[]): Map<string, TafsirEntry> {
   const map = new Map<string, TafsirEntry>()
   for (const entry of raw) {
     if (!isRawTafsirEntry(entry)) continue
+
+    const sura = entry.sura ?? entry.sura_number
+    const aya = entry.aya ?? entry.verse_number
+    const text =
+      normalizeTafsirText(entry.text) ??
+      normalizeTafsirText(entry.tafsir) ??
+      normalizeTafsirText(entry.content)
+
+    if (typeof sura !== 'number' || typeof aya !== 'number' || !text) continue
+
     const tafsir: TafsirEntry = {
-      key: tafsirKey(entry.sura, entry.aya),
-      surah: entry.sura,
-      aya: entry.aya,
-      text: entry.text,
+      key: tafsirKey(sura, aya),
+      surah: sura,
+      aya: aya,
+      text,
     }
     map.set(tafsir.key, tafsir)
   }
   return map
 }
 
-let loadPromise: Promise<Map<string, TafsirEntry>> | null = null
+const tafsirCache = new Map<string, Map<string, TafsirEntry>>()
+const tafsirPromiseCache = new Map<string, Promise<Map<string, TafsirEntry>>>()
 
-export function getTafsirMap(): Promise<Map<string, TafsirEntry>> {
-  if (!loadPromise) {
-    loadPromise = (async () => {
-      const res = await fetch(TAFSIR_RAW_URL, {
-        next: { revalidate: 86400 },
-        headers: { Accept: 'application/json' },
-      })
+export function getTafsirSource(sourceId: string = DEFAULT_SOURCE_ID) {
+  const source = getSource(sourceId) ?? TAFSIR_SOURCES.find((item) => item.id === sourceId)
+  if (!source || source.type !== 'tafsir') {
+    throw new Error(`Unknown Tafsir source id: ${sourceId}`)
+  }
+  return source
+}
+
+export function getTafsirMap(sourceId: string = DEFAULT_SOURCE_ID): Promise<Map<string, TafsirEntry>> {
+  const source = getTafsirSource(sourceId)
+  const cached = tafsirCache.get(source.id)
+  if (cached) return Promise.resolve(cached)
+
+  const inFlight = tafsirPromiseCache.get(source.id)
+  if (inFlight) return inFlight
+
+  const promise = fetch(source.url, {
+    next: { revalidate: 86400 },
+    headers: { Accept: 'application/json' },
+  })
+    .then((res) => {
       if (!res.ok) {
         throw new Error(
-          `Failed to fetch Arabic Tafsir (ar_muyassar.json) — HTTP ${res.status}`
+          `Failed to fetch Tafsir source "${source.id}" (${source.url}) — HTTP ${res.status}`
         )
       }
-      const json = (await res.json()) as unknown
-      if (!Array.isArray(json)) {
-        throw new Error('Arabic Tafsir dataset is not an array')
-      }
-      return buildTafsirMap(json)
-    })().catch((err) => {
-      loadPromise = null
-      throw err
+      return res.json() as Promise<unknown>
     })
-  }
-  return loadPromise
+    .then((json) => {
+      if (!Array.isArray(json)) {
+        throw new Error(`Tafsir source "${source.id}" payload is not an array`)
+      }
+      const map = buildTafsirMap(json)
+      tafsirCache.set(source.id, map)
+      return map
+    })
+    .finally(() => {
+      tafsirPromiseCache.delete(source.id)
+    })
+
+  tafsirPromiseCache.set(source.id, promise)
+  return promise
+}
+
+export async function getTafsirEntry(
+  surah: number,
+  aya: number,
+  sourceId: string = DEFAULT_SOURCE_ID
+): Promise<TafsirEntry | undefined> {
+  const map = await getTafsirMap(sourceId)
+  return map.get(tafsirKey(surah, aya))
 }
