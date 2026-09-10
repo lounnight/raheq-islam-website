@@ -47,6 +47,8 @@ const CAPTURE_SCALE = 2
 const MIN_SCALE = 0.6
 const MAX_SCALE = 1.6
 const TAFSIR_FONT_SIZE = '1rem'
+const CAPTURE_PADDING_TOP = '2rem'
+const CAPTURE_PADDING_BOTTOM = '2rem'
 
 const TAFSIR_OPTIONS = [{ id: 'ar_muyassar', label: 'التفسير الميسّر' }] as const
 
@@ -123,7 +125,11 @@ function ExportCard({
     >
       <div
         className="mx-auto w-full [container-type:inline-size]"
-        style={{ maxWidth: CAPTURE_WIDTH }}
+        style={{
+          maxWidth: CAPTURE_WIDTH,
+          paddingTop: CAPTURE_PADDING_TOP,
+          paddingBottom: CAPTURE_PADDING_BOTTOM,
+        }}
       >
         <article
           className="mushaf-page madinah-mushaf-page relative text-foreground [container-type:inline-size]"
