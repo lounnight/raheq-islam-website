@@ -47,10 +47,23 @@ const CAPTURE_SCALE = 2
 const MIN_SCALE = 0.6
 const MAX_SCALE = 1.6
 const TAFSIR_FONT_SIZE = '1rem'
+// Space added above and below the exported content so the ayah text
+// (and Basmala / tafsir) isn't flush against the top/bottom edges of
+// the downloaded image.
 const CAPTURE_PADDING_TOP = '2rem'
 const CAPTURE_PADDING_BOTTOM = '2rem'
 
-const TAFSIR_OPTIONS = [{ id: 'ar_muyassar', label: 'التفسير الميسّر' }] as const
+const TAFSIR_OPTIONS = [
+  { id: 'ar_muyassar', label: 'التفسير الميسّر' },
+  { id: 'sa3dy', label: 'تفسير السعدي' },
+  { id: 'katheer', label: 'تفسير ابن كثير' },
+  { id: 'baghawy', label: 'تفسير البغوي' },
+  { id: 'qortoby', label: 'تفسير القرطبي' },
+  { id: 'tabary', label: 'تفسير الطبري' },
+  { id: 'waseet', label: 'التفسير الوسيط' },
+  { id: 'tafheem', label: 'تفهيم القرآن' },
+  { id: 'tanweer', label: 'تفسير التحرير والتنوير' },
+] as const
 
 function resolveAmiriFamily(): string {
   try {
@@ -263,7 +276,7 @@ export function AyahImageExport({
     }
     let ok = true
     setTafsirError(false)
-    getTafsirMap()
+    getTafsirMap(tafsirId)
       .then((map) => {
         if (!ok) return
         const entries: TafsirEntry[] = []
