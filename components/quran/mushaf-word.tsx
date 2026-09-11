@@ -12,8 +12,8 @@ export function MushafWord({ word, isFirstWord }: MushafWordProps) {
   const glyphs = word.glyphs?.qpc2 || word.glyphs?.qpc1
   const content = glyphs ?? word.text
 
-  const displayContent = isFirstWord && content.length > 1
-    ? content[0] + ' ' + content.slice(1)
+  const displayContent = isFirstWord && content.length > 0
+    ? content.charAt(0) + ' ' + content.slice(1)
     : content
 
   return (
