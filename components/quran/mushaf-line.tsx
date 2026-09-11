@@ -34,7 +34,7 @@ export function MushafLine({
           ) : line.glyphs?.qpc2 || line.glyphs?.qpc1 ? (
             <span className="mushaf-line-glyphs">{line.glyphs?.qpc2 || line.glyphs?.qpc1}</span>
           ) : (
-            <BasmalaSvg color="var(--foreground)" />
+            <BasmalaSvg />
           )}
         </div>
       )

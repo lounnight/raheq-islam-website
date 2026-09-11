@@ -47,9 +47,6 @@ const CAPTURE_SCALE = 2
 const MIN_SCALE = 0.6
 const MAX_SCALE = 1.6
 const TAFSIR_FONT_SIZE = '1rem'
-// Space added above and below the exported content so the ayah text
-// (and Basmala / tafsir) isn't flush against the top/bottom edges of
-// the downloaded image.
 const CAPTURE_PADDING_TOP = '2rem'
 const CAPTURE_PADDING_BOTTOM = '2rem'
 
@@ -163,7 +160,7 @@ function ExportCard({
 
           {from === 1 && shouldShowBismillah(surahNumber) && (
             <div className="mushaf-line m-0 w-full whitespace-nowrap text-center [direction:rtl]">
-              <BasmalaSvg color="var(--foreground)" />
+              <BasmalaSvg theme={theme} />
             </div>
           )}
 

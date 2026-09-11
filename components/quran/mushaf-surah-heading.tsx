@@ -1,6 +1,7 @@
 'use client'
 
-import { BISMILLAH, shouldShowBismillah } from './mushaf-utils'
+import { shouldShowBismillah } from './mushaf-utils'
+import { BasmalaSvg } from './Basmala'
 
 export type SurahHeading = {
   surahNumber: number
@@ -27,8 +28,8 @@ export function MushafSurahHeading({ headings, showBismillah = true }: MushafSur
       {showBismillah &&
         headings.length > 0 &&
         headings.some((h) => shouldShowBismillah(h.surahNumber)) && (
-          <div className="mt-[0.2em] text-[1.15em] font-medium leading-[1.5] [font-family:var(--font-amiri),'Amiri_Quran','UthmanTN1_Ver10',Cairo,serif]">
-            {BISMILLAH}
+          <div className="mt-[0.8em] w-full text-center">
+            <BasmalaSvg />
           </div>
         )}
     </div>

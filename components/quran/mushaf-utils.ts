@@ -12,8 +12,6 @@ export function toArabicIndic(value: number | string): string {
 }
 
 
-export const BISMILLAH = 'بِسْمِ اللهِ الرَّحْمَنِ الرَّحِيمِ'
-
 export const JUZ_LABEL = 'جزء'
 export const HIZB_LABEL = 'حزب'
 
