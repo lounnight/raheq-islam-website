@@ -3,6 +3,7 @@
 import type { MushafLayoutLine } from '@/types/quran'
 import { MushafWordRun } from './mushaf-word'
 import { BasmalaSvg } from './Basmala'
+import { SurahNameFrame } from './surah-name-frame'
 
 export function MushafLine({
   line,
@@ -15,12 +16,10 @@ export function MushafLine({
     case 'surah-header':
       return (
         <div
-          className="mushaf-line m-0 w-full overflow-x-visible whitespace-nowrap text-center font-semibold [direction:rtl] [font-family:var(--font-amiri),'Amiri_Quran','UthmanTN1_Ver10',Cairo,serif]"
+          className="mushaf-line m-0 w-full overflow-x-visible whitespace-nowrap text-center [direction:rtl]"
           data-line={line.line}
         >
-          <span className="mushaf-surah-title inline-block text-[1.3em] font-bold leading-[1.6] [font-family:var(--font-amiri),'Amiri_Quran','UthmanTN1_Ver10',Cairo,serif]">
-            {line.text}
-          </span>
+          <SurahNameFrame name={line.text} />
         </div>
       )
     case 'basmala':

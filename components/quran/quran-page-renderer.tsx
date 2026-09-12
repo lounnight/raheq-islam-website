@@ -131,7 +131,7 @@ export function QuranPageRenderer({
             <main
               className="mushaf-text-region [padding-inline:var(--mushaf-inset-x,8.4%)]"
               aria-label="نص الصفحة القرآني"
-              style={{ marginTop: '20px', marginBottom: '20px' }}
+              style={{ marginTop: '10px', marginBottom: '10px' }}
             >
               <MushafText
                 layout={layout!}

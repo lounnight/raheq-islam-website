@@ -2,6 +2,7 @@
 
 import { shouldShowBismillah } from './mushaf-utils'
 import { BasmalaSvg } from './Basmala'
+import { SurahNameFrame } from './surah-name-frame'
 
 export type SurahHeading = {
   surahNumber: number
@@ -18,11 +19,7 @@ export function MushafSurahHeading({ headings, showBismillah = true }: MushafSur
   return (
     <div className="px-[0.5em] pb-[0.3em] pt-[0.6em] text-center">
       {headings.map((h) => (
-        <div key={h.surahNumber} className="inline-flex items-center">
-          <span className="mushaf-surah-title inline-block text-[1.3em] font-bold leading-[1.6] [font-family:var(--font-amiri),'Amiri_Quran','UthmanTN1_Ver10',Cairo,serif]">
-            سورة {h.name}
-          </span>
-        </div>
+        <SurahNameFrame key={h.surahNumber} name={h.name} />
       ))}
 
       {showBismillah &&
