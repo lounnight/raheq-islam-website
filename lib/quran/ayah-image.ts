@@ -68,6 +68,20 @@ export function buildImageFilename(
   return `سورة-${safeName}-الآيات-${from}-${to}.png`
 }
 
+export type AyahExportTextColorMode = 'default' | 'custom'
+
+export const AYAH_EXPORT_DEFAULT_TEXT_COLOR = '#171717'
+const HEX_COLOR_RE = /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/
+
+export function resolveAyahExportTextColor(
+  mode: AyahExportTextColorMode,
+  customColor: string
+): string | undefined {
+  if (mode !== 'custom') return undefined
+  const color = customColor.trim()
+  return HEX_COLOR_RE.test(color) ? color.toLowerCase() : undefined
+}
+
 export async function ensureAyahImageFonts(
   lines: readonly AyahImageWordLine[],
   amiriFamily: string

@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import type { CSSProperties } from 'react'
 import { toPng } from 'html-to-image'
 import { AlertCircle, Download, Loader2, X } from 'lucide-react'
 
@@ -8,11 +9,14 @@ import type { AyahRef } from '@/components/quran/mushaf-page-interaction'
 import type { SurahPageEntry } from '@/components/quran/surah-reader'
 import type { MushafLayoutWord } from '@/types/quran'
 import {
+  AYAH_EXPORT_DEFAULT_TEXT_COLOR,
+  type AyahExportTextColorMode,
   buildImageFilename,
   ensureAyahImageFonts,
   ensureQcfFontsEmbedded,
   extractAyahWordLines,
   measureWidestLineEm,
+  resolveAyahExportTextColor,
   validateAyahRange,
   type AyahImageWordLine,
 } from '@/lib/quran/ayah-image'
@@ -85,6 +89,7 @@ function ExportCard({
   to,
   theme,
   background,
+  textColor,
   fontSizeFactor,
   showSurahName,
   tafsirEntries,
@@ -96,6 +101,7 @@ function ExportCard({
   to: number
   theme: 'light' | 'dark'
   background: string
+  textColor: string | undefined
   fontSizeFactor: number
   showSurahName: boolean
   tafsirEntries: TafsirEntry[]
@@ -127,10 +133,20 @@ function ExportCard({
     words: line.words as MushafLayoutWord[],
   })
 
+  const cardTextStyle: CSSProperties | undefined = textColor
+    ? {
+        color: textColor,
+        '--ayah-export-text-color': textColor,
+        '--foreground': textColor,
+        '--primary': textColor,
+        '--muted-foreground': textColor,
+      } as CSSProperties
+    : undefined
+
   return (
     <div
       className={`w-full ${theme === 'dark' ? 'dark' : 'light'}`}
-      style={{ backgroundColor: background }}
+      style={{ backgroundColor: background, ...(cardTextStyle ?? {}) }}
       dir="rtl"
     >
       <div
@@ -216,6 +232,9 @@ export function AyahImageExport({
   const [theme, setTheme] = useState<'light' | 'dark'>(siteTheme)
   const [bgMode, setBgMode] = useState<'default' | 'solid'>('default')
   const [bgColor, setBgColor] = useState('#faf6ee')
+  const [textColorMode, setTextColorMode] =
+    useState<AyahExportTextColorMode>('default')
+  const [textColor, setTextColor] = useState(AYAH_EXPORT_DEFAULT_TEXT_COLOR)
   const [showTafsir, setShowTafsir] = useState(false)
   const [tafsirId, setTafsirId] = useState<string>(TAFSIR_OPTIONS[0].id)
   const [tafsirEntries, setTafsirEntries] = useState<TafsirEntry[]>([])
@@ -303,6 +322,8 @@ export function AyahImageExport({
   const background =
     bgMode === 'solid' ? bgColor : theme === 'dark' ? 'var(--background)' : '#ffffff'
 
+  const resolvedTextColor = resolveAyahExportTextColor(textColorMode, textColor)
+
   const cardProps = {
     lines,
     surahName,
@@ -311,6 +332,7 @@ export function AyahImageExport({
     to,
     theme,
     background,
+    textColor: resolvedTextColor,
     fontSizeFactor,
     showSurahName,
     tafsirEntries,
@@ -465,6 +487,34 @@ export function AyahImageExport({
                 value={bgColor}
                 onChange={(e) => setBgColor(e.target.value)}
                 aria-label="اختيار لون الخلفية"
+              />
+            </label>
+          )}
+
+          <label className={controlLabel}>
+            <span>لون النص</span>
+            <select
+              className={controlClass}
+              value={textColorMode}
+              onChange={(e) =>
+                setTextColorMode(e.target.value as AyahExportTextColorMode)
+              }
+              aria-label="لون نص الصورة"
+            >
+              <option value="default">لون المظهر</option>
+              <option value="custom">لون مخصص</option>
+            </select>
+          </label>
+
+          {textColorMode === 'custom' && (
+            <label className={controlLabel}>
+              <span>اختيار لون النص</span>
+              <input
+                type="color"
+                className={`h-[2.1rem] w-full cursor-pointer ${controlClass}`}
+                value={textColor}
+                onChange={(e) => setTextColor(e.target.value)}
+                aria-label="اختيار لون نص الصورة"
               />
             </label>
           )}
